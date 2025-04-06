@@ -5,11 +5,11 @@ import java.util.Optional;
 
 public class BGIData {
   private final int dataVersion;
-  private final Map<Integer, Object> attributes;
+  private final Map<Integer, Object> properties;
 
-  public BGIData(int dataVersion, Map<Integer, Object> attributes) {
+  public BGIData(int dataVersion, Map<Integer, Object> properties) {
     this.dataVersion = dataVersion;
-    this.attributes = attributes;
+    this.properties = properties;
   }
 
   public Optional<String> getItemId() {
@@ -17,7 +17,7 @@ public class BGIData {
   }
 
   public Optional<Object> getAttribute(String key) {
-    return Optional.ofNullable(attributes.getOrDefault(key.hashCode(), null));
+    return Optional.ofNullable(properties.getOrDefault(key.hashCode(), null));
   }
 
   // Specialized methods for each type
@@ -55,7 +55,7 @@ public class BGIData {
   public String toString() {
     return "BGIData{" +
         "dataVersion=" + dataVersion +
-        ", attributes=" + attributes +
+        ", properties=" + properties +
         '}';
   }
 }
