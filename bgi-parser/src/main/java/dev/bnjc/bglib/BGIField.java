@@ -1,4 +1,4 @@
-package dev.bnjc;
+package dev.bnjc.bglib;
 
 public enum BGIField {
   ITEM_ID(BGIType.STRING),

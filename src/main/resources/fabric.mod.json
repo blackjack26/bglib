@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "bglib",
+  "version": "${module_version}",
+  "name": "${module_name}",
+  "description": "${module_description}",
+  "authors": ["bnjc"],
+  "contact": {
+    "sources": "https://github.com/blackjack26/bglib",
+    "issues": "https://github.com/blackjack26/bglib/issues"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "update_checker": false
+    }
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
