@@ -6,16 +6,8 @@ plugins {
 
 def targetJavaVersion = 21
 
-ext.mcDependencies = [
-        minecraft: "com.mojang:minecraft:${project.minecraft_version}",
-        mappings: "net.fabricmc:yarn:${project.yarn_mappings}:v2",
-        fabricLoader: "net.fabricmc:fabric-loader:${project.loader_version}",
-        fabricApi: "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-]
-
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'maven-publish'
     apply plugin: 'fabric-loom'
 
     sourceCompatibility = JavaVersion.VERSION_21
@@ -23,39 +15,11 @@ allprojects {
 
     group = project.maven_group
 
-    sourceSets {
-        testmod {
-            compileClasspath += main.compileClasspath
-            runtimeClasspath += main.runtimeClasspath
-        }
-    }
-
-    loom {
-        runs {
-            testmodClient {
-                client()
-                source(sourceSets.testmod)
-
-                name = "Test Mod Client"
-            }
-
-            testmodServer {
-                server()
-                source(sourceSets.testmod)
-
-                name = "Test Mod Server"
-            }
-        }
-
-        createRemapConfigurations(sourceSets.testmod)
-    }
-
     dependencies {
         minecraft "com.mojang:minecraft:${project.minecraft_version}"
         mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-        testmodImplementation sourceSets.main.output
+        modApi "net.fabricmc:fabric-loader:${project.loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     }
 
     java {
@@ -93,15 +57,22 @@ allprojects {
 }
 
 subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'fabric-loom'
+
     version = project.module_version
 
     publishing {
         publications {
             create("mavenJava", MavenPublication) {
-                from components.java
-                artifactId = project.name
-                groupId = project.group
-                version = project.version
+                artifact(remapJar) {
+                    builtBy(remapJar)
+                }
+
+                artifact(remapSourcesJar) {
+                    builtBy(remapSourcesJar)
+                }
 
                 pom {
                     name = properties["module_name"]
@@ -129,25 +100,44 @@ subprojects {
 
         repositories {
             maven {
-                name = 'GitHubPackages'
-                url = uri("https://maven.pkg.github.com/blackjack26/bglib")
-
-                credentials {
-                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME_GITHUB")
-                    password = project.findProperty("gpr.token") ?: System.getenv("TOKEN_GITHUB")
-                }
+                name = 'CustomRepo'
+                url = uri("${rootProject.projectDir}/../bnjc-maven/public")
             }
         }
+    }
+
+    // Ensure sourcesJar is only generated once
+    tasks.named('sourcesJar') {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+}
+
+subprojects.each {
+    remapJar.dependsOn("${it.path}:remapJar")
+}
+
+dependencies {
+    afterEvaluate {
+        subprojects.each {
+            api project(path: "${it.path}", configuration: "namedElements")
+        }
+    }
+}
+
+configurations {
+    nestedJars {
+        transitive = true
     }
 }
 
 dependencies {
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-    afterEvaluate {
-        subprojects.each {
-            implementation project(path: ":${it.path}", configuration: "namedElements")
-            testmodImplementation project(":${it.path}").sourceSets.testmod.output
-        }
+    subprojects.each {
+        nestedJars project("${it.path}")
     }
 }
+
+remapJar {
+    nestedJars.from configurations.nestedJars
+}
+
+assemble.dependsOn(remapJar)

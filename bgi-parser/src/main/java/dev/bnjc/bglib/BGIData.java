@@ -70,6 +70,16 @@ public class BGIData {
     return getStringArray(field.name());
   }
 
+  public Optional<byte[]> getStream(String key) {
+    return getAttribute(key)
+        .filter(value -> value instanceof byte[])
+        .map(value -> (byte[]) value);
+  }
+
+  public Optional<byte[]> getStream(BGIField field) {
+    return getStream(field.name());
+  }
+
   @Override
   public String toString() {
     return "BGIData{" +
