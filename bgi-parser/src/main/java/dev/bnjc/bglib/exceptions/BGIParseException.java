@@ -1,5 +1,11 @@
 package dev.bnjc.bglib.exceptions;
 
+/**
+ * This exception is raised if there is an issue that occurs while the BGI data is being parsed.
+ *
+ * @since 0.1.0
+ * @author Jack Grzechowiak
+ */
 public class BGIParseException extends Exception {
   private final ErrorCode errorCode;
 

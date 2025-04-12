@@ -1,5 +1,11 @@
 package dev.bnjc.bglib.exceptions;
 
+/**
+ * Contains error codes for exceptions that can occur during BGI parsing.
+ *
+ * @since 0.1.0
+ * @author Jack Grzechowiak
+ */
 public enum ErrorCode {
   DEFAULT(0, "An unexpected error occurred"),
   MISSING_TAG(1, "Missing custom BGI tag"),

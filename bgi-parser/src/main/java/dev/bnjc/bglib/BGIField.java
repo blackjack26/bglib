@@ -1,5 +1,10 @@
 package dev.bnjc.bglib;
 
+/**
+ * A possible field found within the parsed BGI data. Each field is associated with its expected type.
+ *
+ * @since 0.1.0
+ */
 public enum BGIField {
   ITEM_ID(BGIType.STRING),
   SET(BGIType.STRING),

@@ -1,5 +1,12 @@
 package dev.bnjc.bglib;
 
+/**
+ * A utility enum used to help parse the BGI data. It stores a reference to the signal byte used
+ * to distinguish the type as well as the associated class.
+ *
+ * @since 0.1.0
+ * @author Jack Grzechowiak
+ */
 public enum BGIType {
   INTEGER((byte)2, Integer.class),
   STRING((byte)3, String.class),
