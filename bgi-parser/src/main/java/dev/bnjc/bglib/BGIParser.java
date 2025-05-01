@@ -72,7 +72,7 @@ public final class BGIParser {
   }
 
   private BGIParseResult<BGIData> parse() {
-    if (originalData.length < 9) {
+    if (originalData.length < 5) {
       return BGIParseResult.error(ErrorCode.DATA_TOO_SHORT);
     }
 
