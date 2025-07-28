@@ -1,7 +1,9 @@
 package dev.bnjc.bglib;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A class representing the data extracted from the BGI byte array.
@@ -34,6 +36,16 @@ public class BGIData {
    */
   public int getDataVersion() {
     return dataVersion;
+  }
+
+  /**
+   * Returns the number of attributes found
+   *
+   * @return the number of attributes
+   * @since 0.1.7
+   */
+  public int getNumAttributes() {
+    return properties.size();
   }
 
   /**
@@ -220,5 +232,9 @@ public class BGIData {
         "dataVersion=" + dataVersion +
         ", properties=" + properties +
         '}';
+  }
+
+  public HashMap<Integer, Object> getAttributes() {
+    return new HashMap<>(this.properties);
   }
 }

@@ -102,7 +102,7 @@ public final class BGIWriter {
   }
 
   private void putPropertyHeader(String key, BGIType type) {
-    putVarInt(key.hashCode());
+    putInt(key.hashCode());
     putByte(type.typeId);
 
     propertyCount++;
@@ -120,6 +120,10 @@ public final class BGIWriter {
 
   private void putShort(short val) {
     putBytes(ByteBuffer.allocate(2).putShort(val).array());
+  }
+
+  private void putInt(int val) {
+    putBytes(ByteBuffer.allocate(4).putInt(val).array());
   }
 
   private void putVarInt(int val) {

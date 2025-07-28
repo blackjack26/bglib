@@ -52,7 +52,7 @@ public class BGIParseException extends Exception {
   @Override
   public String getMessage() {
     String msg = super.getMessage();
-    if (msg.isEmpty()) {
+    if (msg == null || msg.isEmpty()) {
       return errorCode.getMessage();
     }
 
