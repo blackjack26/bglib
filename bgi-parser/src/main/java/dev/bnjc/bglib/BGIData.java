@@ -1,5 +1,7 @@
 package dev.bnjc.bglib;
 
+import dev.bnjc.bglib.stream.object.StreamObject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -208,10 +210,10 @@ public class BGIData {
    * @return A stream property found using the given key (if any).
    * @since 0.1.2
    */
-  public Optional<byte[]> getStream(String key) {
+  public Optional<StreamObject> getStream(String key) {
     return getAttribute(key)
-        .filter(value -> value instanceof byte[])
-        .map(value -> (byte[]) value);
+        .filter(value -> value instanceof StreamObject)
+        .map(value -> (StreamObject) value);
   }
 
   /**
@@ -222,7 +224,7 @@ public class BGIData {
    * @return A stream property found using the given BGI field (if any).
    * @since 0.1.2
    */
-  public Optional<byte[]> getStream(BGIField field) {
+  public Optional<StreamObject> getStream(BGIField field) {
     return getStream(field.name());
   }
 
