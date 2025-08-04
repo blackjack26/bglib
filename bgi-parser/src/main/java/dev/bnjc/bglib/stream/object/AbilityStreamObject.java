@@ -1,20 +1,24 @@
 package dev.bnjc.bglib.stream.object;
 
+import dev.bnjc.bglib.exceptions.BGIParseException;
+import dev.bnjc.bglib.exceptions.ErrorCode;
 import dev.bnjc.bglib.utils.ByteParser;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AbilityStreamObject extends StreamObject {
-  private final List<Ability> abilities;
+public class AbilityStreamObject extends VersionedStreamObject {
+  private final List<Ability> abilities = new ArrayList<>();
 
-  public AbilityStreamObject(int key, ByteBuffer buffer) {
+  private AbilityStreamObject(int key, ByteBuffer buffer) {
     super(key, buffer);
+  }
 
-    this.abilities = new ArrayList<>();
-
-    this.parseBuffer();
+  public static AbilityStreamObject from(int key, ByteBuffer buffer) throws BGIParseException {
+    var aso = new AbilityStreamObject(key, buffer);
+    aso.parse();
+    return aso;
   }
 
   public List<Ability> getAbilities() {
@@ -25,25 +29,26 @@ public class AbilityStreamObject extends StreamObject {
     return !abilities.isEmpty();
   }
 
-  private void parseBuffer() {
-    boolean hasAbilities = ByteParser.getBoolean(this.buffer);
+  @Override
+  protected void parseBuffer() throws BGIParseException {
+    if (this.version > 1) {
+      throw new BGIParseException("Unsupported ABILITY stream version [" + this.version + "]", ErrorCode.UNSUPPORTED_STREAM_VERSION);
+    }
 
-    if (hasAbilities) {
-      int entryCount = ByteParser.getVarInt(this.buffer);
-      for (int i = 0; i < entryCount; i++) {
-        String id = ByteParser.getString(this.buffer);
-        String castMode = ByteParser.getString(this.buffer);
-        List<Modifier> modifiers = new ArrayList<>();
+    int entryCount = ByteParser.getVarInt(this.buffer);
+    for (int i = 0; i < entryCount; i++) {
+      String id = ByteParser.getString(this.buffer);
+      String castMode = ByteParser.getString(this.buffer);
+      List<Modifier> modifiers = new ArrayList<>();
 
-        int modCount = ByteParser.getVarInt(this.buffer);
-        for (int m = 0; m < modCount; m++) {
-          String name = ByteParser.getString(this.buffer);
-          double value = ByteParser.getDouble(this.buffer);
-          modifiers.add(new Modifier(name, value));
-        }
-
-        this.abilities.add(new Ability(id, castMode, modifiers));
+      int modCount = ByteParser.getVarInt(this.buffer);
+      for (int m = 0; m < modCount; m++) {
+        String name = ByteParser.getString(this.buffer);
+        double value = ByteParser.getDouble(this.buffer);
+        modifiers.add(new Modifier(name, value));
       }
+
+      this.abilities.add(new Ability(id, castMode, modifiers));
     }
   }
 
@@ -51,7 +56,8 @@ public class AbilityStreamObject extends StreamObject {
   public String toString() {
     return "AbilityStreamObject{" +
         "abilities=" + abilities +
-        "}";
+        ", version=" + version +
+        '}';
   }
 
   public record Ability(String id, String castMode, List<Modifier> modifiers) {}

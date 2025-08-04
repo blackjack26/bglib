@@ -17,7 +17,7 @@ public class HistoryStreamObject extends StreamObject {
 
   private boolean unknown1;
 
-  public HistoryStreamObject(int key, ByteBuffer buffer) {
+  private HistoryStreamObject(int key, ByteBuffer buffer) {
     super(key, buffer);
 
     this.ogStories = new ArrayList<>();
@@ -25,12 +25,16 @@ public class HistoryStreamObject extends StreamObject {
     this.modStories = new ArrayList<>();
 
     this.unknown1 = false;
+  }
 
-    try {
-      this.parseBuffer();
-    } catch (BGIParseException e) {
-      throw new RuntimeException(e);
-    }
+  public static HistoryStreamObject from(int key, ByteBuffer buffer) throws BGIParseException {
+    var hso = new HistoryStreamObject(key, buffer);
+    hso.parse();
+    return hso;
+  }
+
+  public void parse() throws BGIParseException {
+    this.parseBuffer();
   }
 
   public String getStatName() {

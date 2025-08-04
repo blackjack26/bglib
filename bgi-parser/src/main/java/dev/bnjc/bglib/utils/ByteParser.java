@@ -1,5 +1,6 @@
 package dev.bnjc.bglib.utils;
 
+import dev.bnjc.bglib.BGIType;
 import dev.bnjc.bglib.exceptions.BGIParseException;
 import dev.bnjc.bglib.exceptions.ErrorCode;
 import dev.bnjc.bglib.stream.BGIStreamParser;
@@ -13,21 +14,21 @@ public final class ByteParser {
   private ByteParser() {}
 
   public static Object getByType(int key, ByteBuffer buffer) throws BGIParseException {
-    byte typeId = ByteParser.getByte(buffer);
+    BGIType type = BGIType.fromTypeId(ByteParser.getByte(buffer));
 
-    return switch (typeId) {
-      case 1 -> getByte(buffer);
-      case 2 -> getVarInt(buffer);
-      case 3 -> getString(buffer);
-      case 4 -> getStringArray(buffer);
-      case 5 -> getShort(buffer);
-      case 6 -> getLong(buffer);
-      case 7 -> getFloat(buffer);
-      case 8 -> getDouble(buffer);
-      case 9 -> getStream(key, buffer);
-      case 10 -> getBoolean(buffer);
-      case 11 -> getUUID(buffer);
-      default -> throw new BGIParseException("Could not parse data type [" + typeId + "]", ErrorCode.UNKNOWN_DATA_TYPE);
+    return switch (type) {
+      case BGIType.BYTE -> getByte(buffer);
+      case BGIType.INTEGER -> getVarInt(buffer);
+      case BGIType.STRING -> getString(buffer);
+      case BGIType.STRING_ARRAY -> getStringArray(buffer);
+      case BGIType.SHORT -> getShort(buffer);
+      case BGIType.LONG -> getLong(buffer);
+      case BGIType.FLOAT -> getFloat(buffer);
+      case BGIType.DOUBLE -> getDouble(buffer);
+      case BGIType.STREAM -> getStream(key, buffer);
+      case BGIType.BOOLEAN -> getBoolean(buffer);
+      case BGIType.UUID -> getUUID(buffer);
+      default -> throw new BGIParseException("Could not parse data type [" + type + "]", ErrorCode.UNKNOWN_DATA_TYPE);
     };
   }
 

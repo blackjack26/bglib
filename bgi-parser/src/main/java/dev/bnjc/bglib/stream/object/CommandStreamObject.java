@@ -1,21 +1,26 @@
 package dev.bnjc.bglib.stream.object;
 
+import dev.bnjc.bglib.exceptions.BGIParseException;
+import dev.bnjc.bglib.exceptions.ErrorCode;
 import dev.bnjc.bglib.utils.ByteParser;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandStreamObject extends StreamObject {
+public class CommandStreamObject extends VersionedStreamObject {
   private final List<Command> commands;
 
-  public CommandStreamObject(int key, ByteBuffer buffer) {
+  private CommandStreamObject(int key, ByteBuffer buffer) {
     super(key, buffer);
 
     this.commands = new ArrayList<>();
+  }
 
-    this.parseBuffer();
+  public static CommandStreamObject from(int key, ByteBuffer buffer) throws BGIParseException {
+    var cso = new CommandStreamObject(key, buffer);
+    cso.parse();
+    return cso;
   }
 
   public List<Command> getCommands() {
@@ -26,19 +31,20 @@ public class CommandStreamObject extends StreamObject {
     return !this.commands.isEmpty();
   }
 
-  private void parseBuffer() {
-    boolean hasCommands = ByteParser.getBoolean(this.buffer);
+  @Override
+  protected void parseBuffer() throws BGIParseException {
+    if (this.version > 1) {
+      throw new BGIParseException("Unsupported COMMANDS stream version [" + this.version + "]", ErrorCode.UNSUPPORTED_STREAM_VERSION);
+    }
 
-    if (hasCommands) {
-      int entryCount = ByteParser.getVarInt(this.buffer);
-      for (var i = 0; i < entryCount; i++) {
-        String commandText = ByteParser.getString(this.buffer);
-        double delay = ByteParser.getDouble(this.buffer);
-        boolean console = ByteParser.getBoolean(this.buffer);
-        boolean op = ByteParser.getBoolean(this.buffer);
+    int entryCount = ByteParser.getVarInt(this.buffer);
+    for (var i = 0; i < entryCount; i++) {
+      String commandText = ByteParser.getString(this.buffer);
+      double delay = ByteParser.getDouble(this.buffer);
+      boolean console = ByteParser.getBoolean(this.buffer);
+      boolean op = ByteParser.getBoolean(this.buffer);
 
-        this.commands.add(new Command(commandText, delay, console, op));
-      }
+      this.commands.add(new Command(commandText, delay, console, op));
     }
   }
 
@@ -46,6 +52,7 @@ public class CommandStreamObject extends StreamObject {
   public String toString() {
     return "CommandStreamObject{" +
         "commands=" + commands +
+        ", version=" + version +
         '}';
   }
 

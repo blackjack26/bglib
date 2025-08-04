@@ -5,7 +5,6 @@ import dev.bnjc.bglib.stream.object.StreamObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * A class representing the data extracted from the BGI byte array.
@@ -228,11 +227,32 @@ public class BGIData {
     return getStream(field.name());
   }
 
+  /**
+   * The BGI data attributes mapped to their {@link BGIField} names
+   *
+   * @return A new map using field names instead of hashes
+   * @since 0.2.1
+   */
+  public HashMap<String, Object> getAttributesMappedToFieldName() {
+    var attrs = new HashMap<String, Object>();
+
+    for (var entry : this.properties.entrySet()) {
+      attrs.put(
+          BGIField.fromHashCode(entry.getKey())
+              .map(Enum::name)
+              .orElse(entry.getKey().toString()),
+          entry.getValue()
+      );
+    }
+
+    return attrs;
+  }
+
   @Override
   public String toString() {
     return "BGIData{" +
         "dataVersion=" + dataVersion +
-        ", properties=" + properties +
+        ", properties=" + getAttributesMappedToFieldName() +
         '}';
   }
 

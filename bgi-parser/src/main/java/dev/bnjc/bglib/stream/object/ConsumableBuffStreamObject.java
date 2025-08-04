@@ -1,5 +1,7 @@
 package dev.bnjc.bglib.stream.object;
 
+import dev.bnjc.bglib.exceptions.BGIParseException;
+import dev.bnjc.bglib.exceptions.ErrorCode;
 import dev.bnjc.bglib.utils.ByteParser;
 
 import java.nio.ByteBuffer;
@@ -8,25 +10,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConsumableBuffStreamObject extends StreamObject {
+public class ConsumableBuffStreamObject extends VersionedStreamObject {
   private final Map<String, List<Buff>> buffTypes;
 
-  public ConsumableBuffStreamObject(int key, ByteBuffer buffer) {
+  private ConsumableBuffStreamObject(int key, ByteBuffer buffer) {
     super(key, buffer);
 
     this.buffTypes = new HashMap<>();
+  }
 
-    this.parseBuffer();
+  public static ConsumableBuffStreamObject from(int key, ByteBuffer buffer) throws BGIParseException {
+    var cbso = new ConsumableBuffStreamObject(key, buffer);
+    cbso.parse();
+    return cbso;
   }
 
   public Map<String, List<Buff>> getBuffTypes() {
     return buffTypes;
   }
 
-  private void parseBuffer() {
-    int buffTypeCount = ByteParser.getVarInt(this.buffer);
+  @Override
+  protected void parseBuffer() throws BGIParseException {
+    if (this.version > 1) {
+      throw new BGIParseException("Unsupported CONSUMABLE_BUFFS stream version [" + this.version + "]", ErrorCode.UNSUPPORTED_STREAM_VERSION);
+    }
 
-    for (int b = 0; b < buffTypeCount; b++) {
+    while (this.buffer.hasRemaining()) {
       String type = ByteParser.getString(this.buffer);
       buffTypes.put(type, new ArrayList<>());
 
@@ -51,6 +60,7 @@ public class ConsumableBuffStreamObject extends StreamObject {
   public String toString() {
     return "ConsumableBuffStreamObject{" +
         "buffTypes=" + buffTypes +
+        ", version=" + version +
         '}';
   }
 

@@ -1,5 +1,7 @@
 package dev.bnjc.bglib.stream.object;
 
+import dev.bnjc.bglib.exceptions.BGIParseException;
+import dev.bnjc.bglib.exceptions.ErrorCode;
 import dev.bnjc.bglib.utils.ByteParser;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,17 +11,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class GemSocketStreamObject extends StreamObject {
+public class GemSocketStreamObject extends VersionedStreamObject {
   private final List<String> emptySlots;
   private final List<GemstoneEntry> gemstones;
 
-  public GemSocketStreamObject(int key, ByteBuffer buffer) {
+  private GemSocketStreamObject(int key, ByteBuffer buffer) {
     super(key, buffer);
 
     this.emptySlots = new ArrayList<>();
     this.gemstones = new ArrayList<>();
+  }
 
-    this.parseBuffer();
+  public static GemSocketStreamObject from(int key, ByteBuffer buffer) throws BGIParseException {
+    var gsso = new GemSocketStreamObject(key, buffer);
+    gsso.parse();
+    return gsso;
   }
 
   public List<String> getEmptySlots() {
@@ -30,11 +36,13 @@ public class GemSocketStreamObject extends StreamObject {
     return gemstones;
   }
 
-  private void parseBuffer() {
-    boolean hasEmptySlots = ByteParser.getBoolean(this.buffer);
-    if (hasEmptySlots) {
-      this.emptySlots.addAll(Arrays.stream(ByteParser.getStringArray(this.buffer)).toList());
+  @Override
+  protected void parseBuffer() throws BGIParseException {
+    if (this.version > 1) {
+      throw new BGIParseException("Unsupported GEM_SOCKET stream version [" + this.version + "]", ErrorCode.UNSUPPORTED_STREAM_VERSION);
     }
+
+    this.emptySlots.addAll(Arrays.stream(ByteParser.getStringArray(this.buffer)).toList());
 
     int entryCount = ByteParser.getVarInt(this.buffer);
     for (int i = 0; i < entryCount; i++) {
@@ -63,8 +71,9 @@ public class GemSocketStreamObject extends StreamObject {
   @Override
   public String toString() {
     return "GemSocketStreamObject{" +
-        "emptySlots=" + emptySlots +
+        "version=" + version +
         ", gemstones=" + gemstones +
+        ", emptySlots=" + emptySlots +
         '}';
   }
 

@@ -11,7 +11,7 @@ public enum ErrorCode {
   MISSING_TAG(1, "Missing custom BGI tag"),
   DATA_TOO_SHORT(2, "Data is too short to be valid"),
   UNKNOWN_DATA_TYPE(3, "Unknown data type"),
-  UNKNOWN_STREAM_TYPE(4, "Unknown stream type"),
+  UNSUPPORTED_STREAM_VERSION(4, "Unsupported stream version"),
   GOBLINLESS(7, "Not goblin enough to be BGI data");
 
   // The actual error code and message
