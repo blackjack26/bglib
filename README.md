@@ -6,6 +6,8 @@ Blockgame related libraries for creating mods with Fabric.
 
 ## BGI Parser (`bgi-parser`)
 
+![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmaven.bnjc.dev%2Fdev%2Fbnjc%2Fbglib%2Fbgi-parser%2Fmaven-metadata.xml)
+
 This library contains helper code to parse data from custom BGI format.
 
 ### Groovy DSL
